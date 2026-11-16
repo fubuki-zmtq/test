@@ -940,27 +940,27 @@
 
   function spawnG3_DarkClaws(targetX, targetY, baseAngle = null) {
     const scale = getSpeedScale();
-    const warnTime = Math.max(0.58, (currentPhase === 1 ? 1.05 : currentPhase === 2 ? 0.92 : 0.82) / Math.pow(scale, 0.55));
-    const cx = Math.max(STAGE_BOUNDS.left + 85, Math.min(STAGE_BOUNDS.right - 85, targetX));
-    const cy = Math.max(STAGE_BOUNDS.top + 70, Math.min(STAGE_BOUNDS.bottom - 70, targetY));
+    const warnTime = Math.max(0.46, (currentPhase === 1 ? 0.82 : currentPhase === 2 ? 0.72 : 0.62) / Math.pow(scale, 0.6));
+    const cx = Math.max(STAGE_BOUNDS.left + 80, Math.min(STAGE_BOUNDS.right - 80, targetX));
+    const cy = Math.max(STAGE_BOUNDS.top + 65, Math.min(STAGE_BOUNDS.bottom - 65, targetY));
     const angle = baseAngle !== null ? baseAngle : Math.atan2(cy - BOSS_POS.y, cx - BOSS_POS.x);
     const perpX = -Math.sin(angle);
     const perpY = Math.cos(angle);
     const dirX = Math.cos(angle);
     const dirY = Math.sin(angle);
-    const clawLength = currentPhase === 3 ? 250 : 220;
-    const spacing = 42;
+    const clawLength = currentPhase === 3 ? 310 : 275;
+    const spacing = 44;
 
     const lines = [-1, 0, 1].map(offsetIdx => {
       const midX = cx + perpX * (offsetIdx * spacing);
       const midY = cy + perpY * (offsetIdx * spacing);
-      const halfLen = clawLength * (offsetIdx === 0 ? 0.56 : 0.48);
+      const halfLen = clawLength * (offsetIdx === 0 ? 0.58 : 0.5);
       return {
         x1: midX - dirX * halfLen,
         y1: midY - dirY * halfLen,
         x2: midX + dirX * halfLen,
         y2: midY + dirY * halfLen,
-        width: 22
+        width: 26
       };
     });
 
@@ -969,7 +969,7 @@
       state: 'WARN',
       timer: 0,
       warnDuration: warnTime,
-      activeDuration: 0.46,
+      activeDuration: 0.48,
       lines,
       hasHitPlayer: false
     });
@@ -977,19 +977,19 @@
 
   function spawnG3_ShadowCage(sideMode = null) {
     const scale = getSpeedScale();
-    const warnTime = Math.max(0.72, (currentPhase === 1 ? 1.25 : 1.08) / Math.pow(scale, 0.5));
-    const activeDuration = currentPhase === 3 ? 2.4 : 2.0;
+    const warnTime = Math.max(0.56, (currentPhase === 1 ? 0.96 : 0.84) / Math.pow(scale, 0.55));
+    const activeDuration = currentPhase === 3 ? 2.8 : 2.35;
     const stageW = STAGE_BOUNDS.right - STAGE_BOUNDS.left;
     const stageH = STAGE_BOUNDS.bottom - STAGE_BOUNDS.top;
     const mode = sideMode || (Math.random() < 0.5 ? 'LEFT_RIGHT' : 'TOP_BOTTOM');
     const rects = [];
 
     if (mode === 'LEFT_RIGHT') {
-      const wallW = stageW * (currentPhase === 3 ? 0.25 : 0.21);
+      const wallW = stageW * (currentPhase === 3 ? 0.29 : 0.25);
       rects.push({ x: STAGE_BOUNDS.left, y: STAGE_BOUNDS.top, w: wallW, h: stageH });
       rects.push({ x: STAGE_BOUNDS.right - wallW, y: STAGE_BOUNDS.top, w: wallW, h: stageH });
     } else {
-      const wallH = stageH * (currentPhase === 3 ? 0.26 : 0.22);
+      const wallH = stageH * (currentPhase === 3 ? 0.30 : 0.26);
       rects.push({ x: STAGE_BOUNDS.left, y: STAGE_BOUNDS.top, w: stageW, h: wallH });
       rects.push({ x: STAGE_BOUNDS.left, y: STAGE_BOUNDS.bottom - wallH, w: stageW, h: wallH });
     }
@@ -1005,34 +1005,37 @@
     });
   }
 
-  function spawnG3_FlameWave(direction = 'DOWN') {
+  function spawnG3_FlameWave(direction = 'DOWN', customY = null) {
     const scale = getSpeedScale();
     const isHard = (currentModeKey === 'INTENSE' || currentModeKey === 'SPECIAL');
-    const warnTime = Math.max(0.68, (currentPhase === 1 ? 1.28 : currentPhase === 2 ? 1.12 : 1.0) / Math.pow(scale, 0.55));
+    const warnTime = Math.max(0.54, (currentPhase === 1 ? 1.02 : currentPhase === 2 ? 0.90 : 0.80) / Math.pow(scale, 0.6));
     const stageW = STAGE_BOUNDS.right - STAGE_BOUNDS.left;
-    const safeW = Math.max(135, stageW * (isHard ? 0.19 : 0.23));
-    const safeX = STAGE_BOUNDS.left + safeW / 2 + 30 + Math.random() * (stageW - safeW - 60);
-    const bandY = direction === 'DOWN'
-      ? Math.max(STAGE_BOUNDS.top + 65, Math.min(STAGE_BOUNDS.bottom - 65, player.y - 35))
-      : Math.max(STAGE_BOUNDS.top + 65, Math.min(STAGE_BOUNDS.bottom - 65, player.y + 35));
+    const safeW = Math.max(115, stageW * (isHard ? 0.15 : 0.18));
+    const safeX = STAGE_BOUNDS.left + safeW / 2 + 25 + Math.random() * (stageW - safeW - 50);
+    const defaultY = direction === 'DOWN'
+      ? Math.max(STAGE_BOUNDS.top + 60, Math.min(STAGE_BOUNDS.bottom - 60, player.y - 25))
+      : Math.max(STAGE_BOUNDS.top + 60, Math.min(STAGE_BOUNDS.bottom - 60, player.y + 25));
+    const bandY = customY !== null
+      ? Math.max(STAGE_BOUNDS.top + 60, Math.min(STAGE_BOUNDS.bottom - 60, customY))
+      : defaultY;
 
     bossAttacks.push({
       type: 'G3_FLAME_WAVE',
       state: 'WARN',
       timer: 0,
       warnDuration: warnTime,
-      activeDuration: 0.65,
+      activeDuration: 0.68,
       y: bandY,
-      height: currentPhase === 3 ? 110 : 94,
+      height: currentPhase === 3 ? 118 : 104,
       safeX,
       safeW,
       hasHitPlayer: false
     });
   }
 
-  function spawnG3_LingeringFire(targetX, targetY, radius = 72) {
+  function spawnG3_LingeringFire(targetX, targetY, radius = 82) {
     const scale = getSpeedScale();
-    const warnTime = Math.max(0.62, (currentPhase === 1 ? 1.18 : 1.0) / Math.pow(scale, 0.55));
+    const warnTime = Math.max(0.50, (currentPhase === 1 ? 0.92 : 0.78) / Math.pow(scale, 0.6));
     const cx = Math.max(STAGE_BOUNDS.left + 55, Math.min(STAGE_BOUNDS.right - 55, targetX));
     const cy = Math.max(STAGE_BOUNDS.top + 55, Math.min(STAGE_BOUNDS.bottom - 55, targetY));
 
@@ -1041,7 +1044,7 @@
       state: 'WARN',
       timer: 0,
       warnDuration: warnTime,
-      activeDuration: currentPhase === 3 ? 2.65 : 2.15,
+      activeDuration: currentPhase === 3 ? 3.2 : 2.6,
       x: cx,
       y: cy,
       radius,
@@ -1066,7 +1069,7 @@
 
     if (memorabiliaState.phase === 'INACTIVE') {
       memorabiliaState.cooldown -= dt;
-      if (memorabiliaState.cooldown <= 0 && currentPhase >= 2) {
+      if (memorabiliaState.cooldown <= 0) {
         triggerMemorabiliaIfEligible();
       }
       return;
@@ -1082,7 +1085,7 @@
       if (memorabiliaState.timer >= 3.0) {
         memorabiliaState.phase = 'INACTIVE';
         memorabiliaState.timer = 0;
-        memorabiliaState.cooldown = currentModeKey === 'SPECIAL' ? 11.5 : 14.5;
+        memorabiliaState.cooldown = currentModeKey === 'SPECIAL' ? 9.5 : 12.0;
         spawnShockwaveRing(player.x, player.y, 120, '#f4efe6', 0.45);
         spawnParticles(player.x, player.y, 24, '#dfe6f0', 50, 220, 4, 0.45);
       }
@@ -1101,45 +1104,69 @@
     attackDirector.patternIndex = (attackDirector.patternIndex + 1) % 6;
 
     if (currentPhase === 1 && !isHard) {
-      if (pat % 3 === 0) {
+      if (pat === 0) {
+        spawnG3_DarkClaws(player.x, player.y);
+        spawnG3_LingeringFire(player.x + (Math.random() - 0.5) * 140, player.y, 76);
+        attackDirector.cooldown = 1.15 / scale;
+      } else if (pat === 1) {
+        spawnG3_FlameWave('DOWN');
+        spawnG3_LingeringFire(player.x, player.y, 76);
+        attackDirector.cooldown = 1.25 / scale;
+      } else if (pat === 2) {
+        spawnG3_ShadowCage('LEFT_RIGHT');
         spawnG3_DarkClaws(player.x, player.y);
         attackDirector.cooldown = 1.35 / scale;
-      } else if (pat % 3 === 1) {
-        spawnG3_LingeringFire(player.x, player.y, 70);
-        attackDirector.cooldown = 1.45 / scale;
+      } else if (pat === 3) {
+        spawnG3_DarkClaws(player.x, player.y, 0.32);
+        spawnG3_DarkClaws(player.x, player.y, -0.32);
+        attackDirector.cooldown = 1.18 / scale;
+      } else if (pat === 4) {
+        spawnG3_LingeringFire(player.x - 95, player.y, 76);
+        spawnG3_LingeringFire(player.x + 95, player.y, 76);
+        spawnG3_FlameWave('UP');
+        attackDirector.cooldown = 1.3 / scale;
       } else {
-        spawnG3_FlameWave('DOWN');
-        attackDirector.cooldown = 1.55 / scale;
+        spawnG3_ShadowCage('TOP_BOTTOM');
+        spawnG3_DarkClaws(player.x, player.y);
+        attackDirector.cooldown = 1.3 / scale;
       }
     } else if (currentPhase <= 2) {
       if (pat === 0) {
         spawnG3_ShadowCage('LEFT_RIGHT');
-        spawnG3_DarkClaws(player.x, player.y);
-        attackDirector.cooldown = 1.75 / scale;
+        spawnG3_DarkClaws(player.x, player.y, 0.25);
+        spawnG3_DarkClaws(player.x, player.y, -0.25);
+        attackDirector.cooldown = 1.32 / scale;
       } else if (pat === 1) {
-        spawnG3_LingeringFire(player.x - 110, player.y, 68);
-        spawnG3_LingeringFire(player.x + 110, player.y, 68);
-        spawnG3_DarkClaws(player.x, player.y);
-        attackDirector.cooldown = 1.65 / scale;
-      } else if (pat === 2) {
+        spawnG3_LingeringFire(player.x - 105, player.y, 80);
+        spawnG3_LingeringFire(player.x + 105, player.y, 80);
         spawnG3_FlameWave('DOWN');
-        spawnG3_LingeringFire(player.x, player.y, 66);
-        attackDirector.cooldown = 1.6 / scale;
+        attackDirector.cooldown = 1.25 / scale;
+      } else if (pat === 2) {
+        spawnG3_FlameWave('DOWN', player.y - 50);
+        spawnG3_DarkClaws(player.x, player.y);
+        spawnG3_LingeringFire(player.x, player.y, 78);
+        attackDirector.cooldown = 1.22 / scale;
       } else if (pat === 3) {
-        spawnG3_DarkClaws(player.x, player.y, 0.35);
-        spawnG3_DarkClaws(player.x, player.y, -0.35);
-        attackDirector.cooldown = 1.5 / scale;
+        spawnG3_DarkClaws(player.x, player.y, 0.4);
+        spawnG3_DarkClaws(player.x, player.y, -0.4);
+        spawnG3_LingeringFire(player.x, player.y, 82);
+        attackDirector.cooldown = 1.15 / scale;
       } else if (pat === 4) {
         spawnG3_ShadowCage('TOP_BOTTOM');
         spawnG3_FlameWave('UP');
-        attackDirector.cooldown = 1.8 / scale;
+        spawnG3_DarkClaws(player.x, player.y);
+        attackDirector.cooldown = 1.35 / scale;
       } else {
-        if (isHard && memorabiliaState.phase === 'INACTIVE' && memorabiliaState.cooldown <= 3.0) {
+        if (isHard && memorabiliaState.phase === 'INACTIVE' && memorabiliaState.cooldown <= 2.5) {
           triggerMemorabiliaIfEligible();
         }
+        for (let k = 0; k < 2; k++) {
+          const rx = STAGE_BOUNDS.left + 90 + Math.random() * (STAGE_BOUNDS.right - STAGE_BOUNDS.left - 180);
+          const ry = STAGE_BOUNDS.top + 70 + Math.random() * (STAGE_BOUNDS.bottom - STAGE_BOUNDS.top - 140);
+          spawnG3_LingeringFire(rx, ry, 78);
+        }
         spawnG3_DarkClaws(player.x, player.y);
-        spawnG3_LingeringFire(player.x + (Math.random() - 0.5) * 160, player.y + (Math.random() - 0.5) * 100, 70);
-        attackDirector.cooldown = 1.55 / scale;
+        attackDirector.cooldown = 1.2 / scale;
       }
     } else {
       if (pat === 0) {
@@ -1147,34 +1174,39 @@
           triggerMemorabiliaIfEligible();
         }
         spawnG3_ShadowCage('LEFT_RIGHT');
-        spawnG3_DarkClaws(player.x, player.y);
-        attackDirector.cooldown = 1.65 / scale;
+        spawnG3_DarkClaws(player.x, player.y, 0.3);
+        spawnG3_DarkClaws(player.x, player.y, -0.3);
+        attackDirector.cooldown = 1.2 / scale;
       } else if (pat === 1) {
-        spawnG3_FlameWave('DOWN');
-        spawnG3_LingeringFire(player.x - 95, player.y + 45, 68);
-        spawnG3_LingeringFire(player.x + 95, player.y - 45, 68);
-        attackDirector.cooldown = 1.55 / scale;
+        spawnG3_FlameWave('DOWN', player.y - 55);
+        spawnG3_FlameWave('UP', player.y + 60);
+        spawnG3_LingeringFire(player.x, player.y, 82);
+        attackDirector.cooldown = 1.28 / scale;
       } else if (pat === 2) {
-        spawnG3_DarkClaws(player.x, player.y, 0.42);
-        spawnG3_DarkClaws(player.x, player.y, -0.42);
-        spawnG3_LingeringFire(player.x, player.y, 72);
-        attackDirector.cooldown = 1.5 / scale;
+        spawnG3_DarkClaws(player.x, player.y, 0.45);
+        spawnG3_DarkClaws(player.x, player.y, 0);
+        spawnG3_DarkClaws(player.x, player.y, -0.45);
+        attackDirector.cooldown = 1.12 / scale;
       } else if (pat === 3) {
         spawnG3_ShadowCage('TOP_BOTTOM');
         spawnG3_DarkClaws(player.x, player.y);
-        attackDirector.cooldown = 1.6 / scale;
+        spawnG3_LingeringFire(player.x - 100, player.y, 80);
+        spawnG3_LingeringFire(player.x + 100, player.y, 80);
+        attackDirector.cooldown = 1.25 / scale;
       } else if (pat === 4) {
         for (let k = 0; k < 3; k++) {
-          const rx = STAGE_BOUNDS.left + 95 + Math.random() * (STAGE_BOUNDS.right - STAGE_BOUNDS.left - 190);
-          const ry = STAGE_BOUNDS.top + 70 + Math.random() * (STAGE_BOUNDS.bottom - STAGE_BOUNDS.top - 140);
-          spawnG3_LingeringFire(rx, ry, 68);
+          const rx = STAGE_BOUNDS.left + 85 + Math.random() * (STAGE_BOUNDS.right - STAGE_BOUNDS.left - 170);
+          const ry = STAGE_BOUNDS.top + 65 + Math.random() * (STAGE_BOUNDS.bottom - STAGE_BOUNDS.top - 130);
+          spawnG3_LingeringFire(rx, ry, 82);
         }
         spawnG3_FlameWave('UP');
-        attackDirector.cooldown = 1.65 / scale;
-      } else {
         spawnG3_DarkClaws(player.x, player.y);
+        attackDirector.cooldown = 1.22 / scale;
+      } else {
+        spawnG3_DarkClaws(player.x, player.y, 0.22);
+        spawnG3_DarkClaws(player.x, player.y, -0.22);
         spawnG3_FlameWave('DOWN');
-        attackDirector.cooldown = 1.5 / scale;
+        attackDirector.cooldown = 1.15 / scale;
       }
     }
   }
@@ -1734,8 +1766,10 @@ https://fubuki-zmtq.github.io/TrialoftheGuardian/`;
           radius: 6,
           damage: 16
         });
-        const pCol = currentRoute === 'GUARDIAN_3' ? '#dfe6f0' : '#e4c580';
-        spawnParticles(player.x, player.y - 12, 3, pCol, 25, 80, 2.5, 0.16);
+        if (!(currentRoute === 'GUARDIAN_3' && memorabiliaState.phase === 'GRAY')) {
+          const pCol = currentRoute === 'GUARDIAN_3' ? '#dfe6f0' : '#e4c580';
+          spawnParticles(player.x, player.y - 12, 3, pCol, 25, 80, 2.5, 0.16);
+        }
       }
 
       for (let i = playerBullets.length - 1; i >= 0; i--) {
@@ -2488,6 +2522,33 @@ https://fubuki-zmtq.github.io/TrialoftheGuardian/`;
 
   function drawPlayerAndBullets(timeSec) {
     const isG3 = currentRoute === 'GUARDIAN_3';
+
+    if (isG3 && memorabiliaState.phase === 'GRAY') {
+      if (memorabiliaState.timer >= 2.0) {
+        const gatherProgress = Math.min(1, (memorabiliaState.timer - 2.0) / 1.0);
+        const outerRadius = 72 * (1 - gatherProgress * 0.78);
+        ctx.save();
+        ctx.translate(player.x, player.y);
+
+        const glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, outerRadius);
+        glowGrad.addColorStop(0, `rgba(255, 255, 255, ${0.25 + gatherProgress * 0.65})`);
+        glowGrad.addColorStop(0.6, `rgba(223, 230, 240, ${0.15 + gatherProgress * 0.4})`);
+        glowGrad.addColorStop(1, 'rgba(223, 230, 240, 0)');
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, outerRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.3 + gatherProgress * 0.7})`;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(0, 0, outerRadius * 0.75, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+      return;
+    }
+
     for (const b of playerBullets) {
       ctx.save();
       ctx.translate(b.x, b.y);
